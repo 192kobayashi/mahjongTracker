@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>麻雀局別データ</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+    }
+    .container {
+      padding: 10px;
+      max-width: 900px;
+      margin: 0 auto;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: space-between;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    input[type="number"],
+    input[type="text"],
+    select,
+    input[type="checkbox"] {
+      width: auto;
+      padding: 8px;
+      margin: 0;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      width: 48%;
+    }
+    .form-group-inline {
+      display: flex;
+      flex-direction: row;
+      gap: 15px;
+      width: 100%;
+    }
+    .checkbox-group {
+      width: 100%;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .button-group {
+      display: flex;
+      gap: 10px;
+    }
+    button {
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .reset-button {
+      background-color: #f44336;
+      margin-top: 10px;
+    }
+    .reset-button:hover {
+      background-color: #e53935;
+    }
+    .results {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .results div {
+      display: inline-block;
+      width: 22%;
+      padding: 10px;
+      background-color: #f1f1f1;
+      border-radius: 4px;
+      margin: 5px;
+    }
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border: 1px solid #ddd;
+    }
+    th {
+      background-color: #f1f1f1;
+    }
+    .check-icon {
+      color: green;
+      font-size: 18px;
+    }
+    .empty-cell {
+      background-color: #f9f9f9;
+    }
+    .half-game-table {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+    <div class="container">
+      <h1>麻雀局別データ</h1>
+      
+      <form id="gameForm">
+        <div class="form-group-inline">
+          <div class="form-group">
+            <label for="honba">局:</label>
+            <select id="honba">
+              <option value="東1局">東1局</option>
+              <option value="東2局">東2局</option>
+              <option value="東3局">東3局</option>
+              <option value="東4局">東4局</option>
+              <option value="南1局">南1局</option>
+              <option value="南2局">南2局</option>
+              <option value="南3局">南3局</option>
+              <option value="南4局">南4局</option>
+              <option value="西1局">西1局</option>
+              <option value="西2局">西2局</option>
+              <option value="西3局">西3局</option>
+              <option value="西4局">西4局</option>
+            </select>
+          </div>
+  
+          <div class="form-group">
+            <label for="honbaCount">本場:</label>
+            <select id="honbaCount">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="checkbox-group">
+          <label for="reach">リーチ:</label>
+          <input type="checkbox" id="reach">
+          <label for="tsumo">ツモ:</label>
+          <input type="checkbox" id="tsumo">
+          <label for="ron">ロン:</label>
+          <input type="checkbox" id="ron">
+          <label for="hōjū">放銃:</label>
+          <input type="checkbox" id="hōjū">
+        </div>
+
+        <div class="form-group-inline">
+          <div class="form-group">
+            <label for="fukuro">副露:</label>
+            <input type="number" id="fukuro" min="0" value="0">
+          </div>
+  
+          <div class="form-group">
+            <label for="shūshi">収支:</label>
+            <input type="number" id="shūshi" value="0">
+          </div>
+        </div>
+  
+  
+        <div class="button-group">
+          <button type="submit">記録</button>
+          <button type="button" class="reset-button" id="resetButton">リセット</button>
+  
+          <button type="button" id="halfGameButton">半荘収支</button>
+          <button type="button" class='reset-button' id="resetHalfGameButton">半荘収支をリセット</button>
+        </div>
+
+      </form>
+  
+      <!-- 半荘別収支テーブル -->
+      <div class="half-game-table" id="halfGameTable">
+        <h3>半荘別収支</h3>
+        <table id="halfGameSummaryTable">
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>局数</th>
+              <th>リーチ</th>
+              <th>ツモ</th>
+              <th>ロン</th>
+              <th>放銃</th>
+              <th>副露</th>
+              <th>合計点</th>
+            </tr>
+          </thead>
+          <tbody  id="halfHistoryList">
+            <!-- 半荘別収支の結果がここに表示されます -->
+          </tbody>
+        </table>
+      </div>
+  
+      <!-- 平均和了率、放銃率、副露率のテーブル -->
+      <div class="statistics-table">
+        <h3>統計情報</h3>
+        <table id="statisticsTable">
+          <thead>
+            <tr>
+              <th>和了率</th>
+              <th>リーチ率</th>
+              <th>放銃率</th>
+              <th>副露率</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- 統計情報がここに表示されます -->
+          </tbody>
+        </table>
+      </div>
+  
+      <div class="history" id="history">
+        <h3>履歴</h3>
+        <table id="historyTable">
+          <thead>
+            <tr>
+              <th>局</th>
+              <th>本場</th>
+              <th>リーチ</th>
+              <th>ツモ</th>
+              <th>ロン</th>
+              <th>放銃</th>
+              <th>副露</th>
+              <th>収支</th>
+              <th>合計点</th>
+            </tr>
+          </thead>
+          <tbody id="historyList">
+            <!-- 履歴の内容はここに表示されます -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  
+    <script>
+      const gameForm = document.getElementById('gameForm');
+      const honbaInput = document.getElementById('honba');
+      const honbaCountInput = document.getElementById('honbaCount');
+      const fukuroInput = document.getElementById('fukuro');
+      const shūshiInput = document.getElementById('shūshi');
+      const reachInput = document.getElementById('reach');
+      const tsumoInput = document.getElementById('tsumo');
+      const ronInput = document.getElementById('ron');
+      const hōjūInput = document.getElementById('hōjū');
+      const resetButton = document.getElementById('resetButton');
+      const halfGameButton = document.getElementById('halfGameButton');
+      const resetHalfGameButton = document.getElementById('resetHalfGameButton');
+      const halfHistoryList = document.getElementById('halfHistoryList');
+      const historyList = document.getElementById('historyList');
+      const halfGameSummaryTable = document.getElementById('halfGameSummaryTable').getElementsByTagName('tbody')[0];
+      const statisticsTable = document.getElementById('statisticsTable').getElementsByTagName('tbody')[0];
+      const reach = document.getElementById("reach");
+      const tsumo = document.getElementById("tsumo");
+      const ron = document.getElementById("ron");
+      const houju = document.getElementById("hōjū");
+  
+      let gameData = JSON.parse(localStorage.getItem('gameData')) || [];
+      let halfGameDataList = JSON.parse(localStorage.getItem('halfGameData')) || [];
+
+      // リーチがチェックされたらツモ or ロンが必須
+      reach.addEventListener("change", () => {
+        if (reach.checked && !tsumo.checked && !ron.checked) {
+          alert("リーチ時はツモまたはロンを選択してください。");
+          reach.checked = false; // チェックを戻す
+          houju.checked = false;
+        }
+      });
+
+      // 放銃がチェックされたらリーチ、ツモ、ロンのチェックを外す
+      houju.addEventListener("change", () => {
+        if (houju.checked) {
+          reach.checked = false;
+          tsumo.checked = false;
+          ron.checked = false;
+        }
+      });
+
+      // 記録ボタン押下時
+      gameForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+  
+        const honba = honbaInput.value;
+        const honbaCount = parseInt(honbaCountInput.value, 10);
+        const fukuro = parseInt(fukuroInput.value, 10);
+        const shūshi = parseInt(shūshiInput.value, 10);
+        const reach = reachInput.checked;
+        const tsumo = tsumoInput.checked;
+        const ron = ronInput.checked;
+        const hōjū = hōjūInput.checked;
+  
+        const game = {
+          honba,
+          honbaCount,
+          reach,
+          tsumo,
+          ron,
+          hōjū,
+          fukuro,
+          shūshi,
+        };
+  
+        gameData.push(game);
+        localStorage.setItem('gameData', JSON.stringify(gameData));
+  
+        updateHistory();
+        updateHalfGateHistory();
+        updateSummary();
+      });
+  
+      // 半荘別記録ボタン押下時
+      halfGameButton.addEventListener('click', function() {
+        var halfGameDataList = JSON.parse(localStorage.getItem('halfGameData')) || [];
+
+        let reachCount = 0;
+        let tsumoCount = 0;
+        let ronCount = 0;
+        let hōjūCount = 0;
+        let fukuroCount = 0;
+        let totalPoints = 25000;
+        let totalGames = gameData.length;
+  
+        gameData.forEach(game => {
+          reachCount += game.reach ? 1 : 0;
+          tsumoCount += game.tsumo ? 1 : 0;
+          ronCount += game.ron ? 1 : 0;
+          hōjūCount += game.hōjū ? 1 : 0;
+          fukuroCount += game.fukuro;
+          totalPoints += game.shūshi; // 収支を合計点に加算
+        });
+  
+        // 半荘別収支テーブルに結果を表示
+        halfGameSummaryTable.innerHTML = "";
+        const row = halfGameSummaryTable.insertRow();
+        row.insertCell(0).textContent = halfGameDataList.length + 1; // No.
+        row.insertCell(1).textContent = totalGames;
+        row.insertCell(2).textContent = reachCount;
+        row.insertCell(3).textContent = tsumoCount;
+        row.insertCell(4).textContent = ronCount;
+        row.insertCell(5).textContent = hōjūCount;
+        row.insertCell(6).textContent = fukuroCount;
+        row.insertCell(7).textContent = totalPoints;
+
+        // 半荘別収支をlocalstorageに保存
+        const halfGameData = {
+          no: halfGameDataList.length + 1,
+          kyokusu: totalGames,
+          reachCount: reachCount,
+          tsumoCount: tsumoCount,
+          ronCount: ronCount,
+          hōjūCount: hōjūCount,
+          fukuroCount: fukuroCount,
+          totalPoints: totalPoints
+        }
+
+        halfGameDataList.push(halfGameData);
+        localStorage.setItem('halfGameData', JSON.stringify(halfGameDataList));
+
+        // 履歴をリセット
+        localStorage.removeItem('gameData');
+        gameData = [];
+        updateHistory();
+        updateHalfGateHistory();
+        updateSummary();
+
+      });
+  
+      // リセットボタン押下時
+      resetButton.addEventListener('click', function() {
+        if (confirm('履歴をリセットしますか？')) {
+          localStorage.removeItem('gameData');
+          gameData = [];
+          updateHistory();
+        }
+      });
+  
+      // 半荘別収支リセットボタン押下時
+      resetHalfGameButton.addEventListener('click', function() {
+        if (confirm('半荘別収支をリセットしますか？')) {
+          localStorage.removeItem('halfGameData');
+          gameData = [];
+          updateHistory();
+          updateHalfGateHistory();
+          updateSummary();
+        }
+      });
+
+      function updateSummary() {
+        let halfGameData = JSON.parse(localStorage.getItem('halfGameData')) || [];
+
+        if (halfGameData.length === 0) {
+          statisticsTable.innerHTML = "";
+          return;
+        }
+
+        let totalReachCount = 0;
+        let totalTumoCount = 0;
+        let totalRonCount = 0;
+        let totalGameCount = 0;
+        let totalHōjūCount = 0;
+        let totalFukuroCount = 0;
+        // 率の計算（半荘別収支から計算する）
+        halfGameDataList.forEach(data => {
+          totalReachCount += data.reachCount;
+          totalTumoCount += data.tsumoCount;
+          totalRonCount += data.ronCount;
+          totalGameCount += data.kyokusu;
+          totalHōjūCount += data.hōjūCount;
+          totalFukuroCount += data.fukuroCount;
+        })
+        const averageWinRate = ((totalTumoCount + totalRonCount) / totalGameCount) * 100;
+        const averageReachRate = (totalReachCount / totalGameCount) * 100
+        const hōjūRate = (totalHōjūCount / totalGameCount) * 100;
+        const fukuroRate = (totalFukuroCount / totalGameCount) * 100;
+
+        statisticsTable.innerHTML = "";
+        const statRow = statisticsTable.insertRow();
+        statRow.insertCell(0).textContent = averageWinRate.toFixed(2) + "%";
+        statRow.insertCell(1).textContent = averageReachRate.toFixed(2) + "%";
+        statRow.insertCell(2).textContent = hōjūRate.toFixed(2) + "%";
+        statRow.insertCell(3).textContent = fukuroRate.toFixed(2) + "%";
+      }
+
+      function updateHalfGateHistory() {
+        halfHistoryList.innerHTML = "";
+        let halfGateData = JSON.parse(localStorage.getItem('halfGameData')) || [];
+  
+        halfGateData.forEach(game => {
+          const row = halfHistoryList.insertRow();
+          row.insertCell(0).textContent = game.no
+          row.insertCell(1).textContent = game.kyokusu;
+          row.insertCell(2).textContent = game.reachCount;
+          row.insertCell(3).textContent = game.tsumoCount;
+          row.insertCell(4).textContent = game.ronCount;
+          row.insertCell(5).textContent = game.hōjūCount;
+          row.insertCell(6).textContent = game.fukuroCount;
+          row.insertCell(7).textContent = game.totalPoints;
+        });
+      }
+
+
+      function updateHistory() {
+        historyList.innerHTML = "";
+  
+        let totalPoints = 25000;
+  
+        gameData.forEach(game => {
+          const row = historyList.insertRow();
+          row.insertCell(0).textContent = game.honba;
+          row.insertCell(1).textContent = game.honbaCount;
+          row.insertCell(2).textContent = game.reach ? "✔️" : "";
+          row.insertCell(3).textContent = game.tsumo ? "✔️" : "";
+          row.insertCell(4).textContent = game.ron ? "✔️" : "";
+          row.insertCell(5).textContent = game.hōjū ? "✔️" : "";
+          row.insertCell(6).textContent = game.fukuro;
+          row.insertCell(7).textContent = game.shūshi;
+          totalPoints += game.shūshi;
+          row.insertCell(8).textContent = totalPoints; // 合計点
+        });
+      }
+  
+      updateHistory();
+      updateHalfGateHistory();
+      updateSummary();
+    </script>
+  </body>
+  </html>
