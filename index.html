@@ -415,7 +415,7 @@
       function updateSummary() {
         let halfGameDataList = JSON.parse(localStorage.getItem('halfGameData')) || [];
 
-        if (halfGameData.length === 0) {
+        if (halfGameDataList.length === 0) {
           statisticsTable.innerHTML = "";
           return;
         }
