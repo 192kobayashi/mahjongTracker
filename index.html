@@ -413,7 +413,7 @@
       });
 
       function updateSummary() {
-        let halfGameData = JSON.parse(localStorage.getItem('halfGameData')) || [];
+        let halfGameDataList = JSON.parse(localStorage.getItem('halfGameData')) || [];
 
         if (halfGameData.length === 0) {
           statisticsTable.innerHTML = "";
