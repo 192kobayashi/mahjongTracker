@@ -105,6 +105,7 @@
       padding: 10px;
       text-align: center;
       border: 1px solid #ddd;
+      font-size: 10px;
     }
     th {
       background-color: #f1f1f1;
@@ -172,12 +173,21 @@
           <input type="checkbox" id="reach">
           <label for="hōjū">放銃:</label>
           <input type="checkbox" id="hōjū">
+          <label for="ryukyoku">流局:</label>
+          <input type="checkbox" id="ryukyoku">
         </div>
 
         <div class="form-group-inline">
           <div class="form-group">
             <label for="fukuro">副露:</label>
-            <input type="number" id="fukuro" min="0" value="0">
+            <select id="fukuroCount">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+            </select>
           </div>
   
           <div class="form-group">
@@ -196,7 +206,30 @@
         </div>
 
       </form>
-  
+
+      <div class="history" id="history">
+        <h3>履歴</h3>
+        <table id="historyTable">
+          <thead>
+            <tr>
+              <th>局</th>
+              <th>本場</th>
+              <th>リーチ</th>
+              <th>ツモ</th>
+              <th>ロン</th>
+              <th>放銃</th>
+              <th>副露</th>
+              <th>流局</th>
+              <th>収支</th>
+              <th>合計点</th>
+            </tr>
+          </thead>
+          <tbody id="historyList">
+            <!-- 履歴の内容はここに表示されます -->
+          </tbody>
+        </table>
+      </div>
+
       <!-- 半荘別収支テーブル -->
       <div class="half-game-table" id="halfGameTable">
         <h3>半荘別収支</h3>
@@ -236,40 +269,19 @@
           </tbody>
         </table>
       </div>
-  
-      <div class="history" id="history">
-        <h3>履歴</h3>
-        <table id="historyTable">
-          <thead>
-            <tr>
-              <th>局</th>
-              <th>本場</th>
-              <th>リーチ</th>
-              <th>ツモ</th>
-              <th>ロン</th>
-              <th>放銃</th>
-              <th>副露</th>
-              <th>収支</th>
-              <th>合計点</th>
-            </tr>
-          </thead>
-          <tbody id="historyList">
-            <!-- 履歴の内容はここに表示されます -->
-          </tbody>
-        </table>
-      </div>
     </div>
-  
+    
     <script>
       const gameForm = document.getElementById('gameForm');
       const honbaInput = document.getElementById('honba');
       const honbaCountInput = document.getElementById('honbaCount');
-      const fukuroInput = document.getElementById('fukuro');
+      const fukuroCountInput = document.getElementById('fukuroCount');
       const shūshiInput = document.getElementById('shūshi');
       const reachInput = document.getElementById('reach');
       const tsumoInput = document.getElementById('tsumo');
       const ronInput = document.getElementById('ron');
       const hōjūInput = document.getElementById('hōjū');
+      const ryukyokuInput = document.getElementById('ryukyoku');
       const resetButton = document.getElementById('resetButton');
       const halfGameButton = document.getElementById('halfGameButton');
       const resetHalfGameButton = document.getElementById('resetHalfGameButton');
@@ -285,36 +297,19 @@
       let gameData = JSON.parse(localStorage.getItem('gameData')) || [];
       let halfGameDataList = JSON.parse(localStorage.getItem('halfGameData')) || [];
 
-      // リーチがチェックされたらツモ or ロンが必須
-      reach.addEventListener("change", () => {
-        if (reach.checked && !tsumo.checked && !ron.checked) {
-          alert("リーチ時はツモまたはロンを選択してください。");
-          reach.checked = false; // チェックを戻す
-          houju.checked = false;
-        }
-      });
-
-      // 放銃がチェックされたらリーチ、ツモ、ロンのチェックを外す
-      houju.addEventListener("change", () => {
-        if (houju.checked) {
-          reach.checked = false;
-          tsumo.checked = false;
-          ron.checked = false;
-        }
-      });
-
       // 記録ボタン押下時
       gameForm.addEventListener('submit', function(event) {
         event.preventDefault();
   
         const honba = honbaInput.value;
         const honbaCount = parseInt(honbaCountInput.value, 10);
-        const fukuro = parseInt(fukuroInput.value, 10);
+        const fukuro = parseInt(fukuroCountInput.value, 10);
         const shūshi = parseInt(shūshiInput.value, 10);
         const reach = reachInput.checked;
         const tsumo = tsumoInput.checked;
         const ron = ronInput.checked;
         const hōjū = hōjūInput.checked;
+        const ryukyoku = ryukyokuInput.checked;
   
         const game = {
           honba,
@@ -325,6 +320,7 @@
           hōjū,
           fukuro,
           shūshi,
+          ryukyoku
         };
   
         gameData.push(game);
@@ -344,6 +340,7 @@
         let ronCount = 0;
         let hōjūCount = 0;
         let fukuroCount = 0;
+        let ryukyokuCount = 0;
         let totalPoints = 25000;
         let totalGames = gameData.length;
   
@@ -353,6 +350,7 @@
           ronCount += game.ron ? 1 : 0;
           hōjūCount += game.hōjū ? 1 : 0;
           fukuroCount += game.fukuro;
+          ryukyoku += game.ryukyoku ? 1 : 0;
           totalPoints += game.shūshi; // 収支を合計点に加算
         });
   
@@ -480,9 +478,10 @@
           row.insertCell(4).textContent = game.ron ? "✔️" : "";
           row.insertCell(5).textContent = game.hōjū ? "✔️" : "";
           row.insertCell(6).textContent = game.fukuro;
-          row.insertCell(7).textContent = game.shūshi;
+          row.insertCell(7).textContent = game.ryukyoku ? "✔️" : "";
+          row.insertCell(8).textContent = game.shūshi;
           totalPoints += game.shūshi;
-          row.insertCell(8).textContent = totalPoints; // 合計点
+          row.insertCell(9).textContent = totalPoints; // 合計点
         });
       }
   
